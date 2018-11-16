@@ -195,6 +195,359 @@ Django框架的使用
         在网页中输出生日: 生日为: xxxx年xx月xx日
 
 
+##############  two day
+    ### 路由配置
+        1. 访问路劲 http://localhost:8000/django_study_2/
+            想交给 django_study_2 应用中的index() 去处理
+
+        2 . 只要访问路径不是admin/ music/ sport/ news/时，全部交给index处理
+            url(r'^', include("index.urls")),
+
+    ### django 中的模板，Templates
+        1. 什么是模板
+            模板就是要动态呈现给用户的网页
+            模板的本质就是网页，前后端， 动静结合的网页
+            django中的模板引擎是由django自己提供的，而并非Jinja2,
+            所以Django中的模板的语法与flask(Jinja2)的语法会稍有不同
+        2. Django模板的设置
+            在setting.py中设置 TEMPLATES 的变量
+            1. BACKEND
+                指定使用的模板的引擎
+            2. DIRS
+                指定模板的存放目录们
+                DIRS = [os.path.join(BASE_DIR, 'templates')]  # 在项目的根目录的templates目录中存放所有模板
+                DIRS = ['index.temp', 'music.temp']  # 在项目的index应用中的temp目录中存放模板
+                                               # 以及  在项目的music应用中的temp目录中存放模板
+            3. APP_DIRS
+                表示是否自动搜索应用中的目录
+                True: 表示要自动搜索应用中的templates的目录
+
+        3. 模板的加载方式
+            1. 通过loader 对象获取模板，再通过HttpResponse进行响应
+               * 先导入loader
+               * 通过loader加载模板
+               * 将加载好的模板渲染成字符串
+               * 通过HttpResponse 将字符串进行响应
+                '''pythom
+                    from django.template import loader
+                    template = loader.get_template('index.html')
+                    template = template.render()
+                    return HttpResponse(template)
+                '''
+            2. 使用render 直接加载并响应模板
+                return render(request, "name")
+        4. 模板的语法
+            1. 变量
+                作用：
+                    将后端的数据传递到模板上进行显示
+                数据类型
+                    字符串
+                    整数
+                    列表
+                    元祖
+                    字典
+                    函数对象
+                变量的语法规范
+                    变量必须要封装到字典中参能传递给模板
+
+//////////////
+练习：
+    1. 访问路径： http://127.0.0.1:8000/var/
+    2. 在视图中需要传递以下数据到模板中
+        姓名：王老师
+        年龄：30
+        性别：男
+        喜欢的一句话：天下没有吃不散的宴席
+    3. 在模板上分别使用h3显示以上内容
+//////////////
+
+            2. 标签
+                作用
+                    将服务器的功能嵌入到模板中
+                语法
+                    {% 标签名 %}
+
+                    {% end标签名 %}
+
+                常用标签
+                    if
+                        {% if %}
+
+                        {% elif %}
+
+                        {% else %}
+
+                        {% endif %}
+                    for
+                        {% for 变量 in iterable %}
+
+                        {% endfor %}
+                        内置变量 forloop
+                            在循环中允许使用forloop内置变量来获取循环的信息
+                            forloop.counter: 记录当前循环遍历的次数
+                            forloop.counter0: 记录当前循环遍历的次数，从0开始
+                            forloop.revcounter: 记录当前元素从后向前算的位置
+                            forloop.revcounter0: 记录当前元素从后向前算的
+
+                            forloop.first: 判断是否是第一次的循环
+                            forloop.last: 判断是否是最后一次的循环
+
+
+            3. 过滤器
+                1. 在变量输出之前，对变量的数据进行筛选和过滤
+                2. 过滤器的语法
+                    {{ 变量|过滤器:参数 }}
+                3. 常用过滤器
+                    {{ value | upper }}
+                        将value转为大写
+                    {{ value | lower }}
+                        将value转为小写
+                    {{ value | add:num }}
+                        将num追加到value之后
+                        value 和 num 可以是列表
+                    {{ value | truncatechars:n }}
+                        将value截取n为字符，后面以...来显示
+
+            4. 静态文件的处理
+                1. 无法与服务器进行动态交互的文件
+                2. 在django中静态文件的处理
+                    在setting.py中设置有关静态文件的信息
+                    1. 设置静态文件的访问路径
+                        在浏览器中通过那个地址能够找到静态文件
+                        STATIC_URL = '/static/'
+                        如果访问路径是 http://localhost:8000/static/...
+                        一律都按照静态文件的方式去查找，不经过路由
+                    2. 设置静态文件的存储路径
+                        指定静态文件要保存在服务器上哪个目录处
+                            STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+                        静态文件目录的存放位置
+                            * 在项目的根目录去创建一个static，用来保存静态文件们
+                    3. 访问静态文件
+                        1. 直接使用静态文件访问路径进行访问
+                            http://localhost:8000/static/...
+                        2. 使用{% static %} 访问静态资源
+                            * 在使用之前需要通过{% load static %} 加载static
+                            * 使用静态资源时
+                                <img src="{% static "images/1.jpg" %}">
+
+///////
+    1. 创建项目 FruitDay
+    2. 创建应用 index 并实现应用配置
+    3. 访问 http://127.0.0.1:8000
+        调用 index 应用中的index函数
+    4. 在index() 函数内
+        渲染天天果园首页模板
+    5. 处理好静态文件配置
+
+
+///////
+    1. 模板
+        继承
+        父模板
+            {% block 名称 %}
+
+            {% endblock %}
+
+        子模版
+            {% extends "父模板的名称" %}
+
+            block
+    2. 反向解析
+        url name 属性- 反向解析
+        url(regex, views, name=''),
+           模板
+                {% url "name" "arg" "" %}
+           视图
+                reverse(name, agrs=(arg1, arg2)),
+
+    3. 模型
+        模型类（实体类）
+            ./manager.py makemigrations
+                将models.py中的内容生成中间文件
+            ./manager.py migrate
+                将中间文件映射到数据库中
+        创建模型
+            class ModelName(models.Model):
+                属性名 = models.字段类型(字段选项)
+            字段类型
+                CharField()
+                EmailField()
+                URLField()
+                ImageField()
+                IntegerField()
+                FloatField()
+                DecimalField()
+                BolleanField()
+                DateField()
+                DataTimeField()
+                TextField()
+            字段选项
+                1. default
+                2. null: True 或 False
+                3. db_column: 指定列名
+                4. db_index: True 或 False 创建索引
+
+===========================================================
+1. 模型
+    相应的指令
+        版本的切换指令
+            0001-initial.py
+            0002-xxxx.py
+            0003-xxxx.py
+        ./manage.py migrate 应用的名称 版本号
+
+    通过数据库自动导出models类
+        ./manage.py inspectdb > 文件名.py
+
+2. 模型中的CRUD
+    1. 增加数据
+        1. Entry.objects.create(属性=值，属性=值)
+            返回值
+                插入成功：返回创建好的实体对象
+                插入失败：返回None，产生异常
+
+        2. 创建一个Entry对象，并通过save()进行保存
+            obj = Entry(属性=值, 属性=值)
+            obj.属性 = 值
+            obj.save()
+                无返回值，保存成功后，obj会被重新赋值
+
+        3. 通过一个字典创建一盒Entry对象，通过save()方法保存
+
+    2. 查询数据
+        通过Entry.objects 调用查询接口函数
+            Entry.objects.all()  # 得到表中所有的数据
+            Entry.objects 提供了对该实体的所有的数据的查询
+
+        所有的查询接口函数都可以通过query属性来得到对应的sql语句
+            例如： Entry.objects.all().query
+
+        1. 获取所有查询结果的方法
+            方法:
+                all()
+            用法:
+                Enrty.objects.all()
+            返回:
+                QuerySet(查询结果集，本质是一个封装了若干对象的列表)
+        2. 查询返回指定列
+            方法:
+                values() | values('列名1', '列名2')
+            作用：
+                查询表中数据的部分列，封装到字典中，再封装到QuerySet中
+            返回：
+                QuerySet(查询结果集，本质是一个封装了若干字段的列表)
+
+        3. 查询返回指定列
+            方法
+                values_list()
+            作用
+                将数据封装到元组中再封装到列表中
+
+        4. 排序方法
+            方法
+                order_by()
+            语法:
+                Entry.objects.order_by('col1', '-col2')
+                默认是升序排序，列名前加-，则表示降序排序
+
+        5. 查询只返回一条数据
+            方法
+                get(条件)
+            注意
+                该方法只使用于只能查询出一条结果的场合
+                如果查询多于一条数据或没查询出结果都会抛出异常
+            返回
+                单个实体对象
+        6. 根据条件查询部分行
+            方法：
+                filter(条件)
+            返回
+                QuerySet
+            ex:
+                查询Author实体中id=1的信息
+                authors = Author.objects.filter(id=1)
+
+            非等值条件需要使用查询谓词 Field Lookup
+            语法
+                Entry.objects.filter(属性__查询谓词=值)
+            注意
+                * 每个查询谓词都是一个独立的功能条件
+                    __exact: 等值条件判断
+                    __gt: 大于条件判断
+                    __year: 得到日期中的年份再进一步判断
+                    __contains: 模糊查询'%xxx%'
+                    __range: 模糊查询 between add
+                    ... ...
+                * 所有支持条件查询的位置处都支持查询谓词
+                    filter() get() exclude()
+
+        7. 对条件取反
+            方法
+                exclude(条件)
+            ex：
+                Author.objects.exclude(id=1)
+                select * from author where not(id=1)
+
+        8. 聚合查询（不带分组）
+            方法
+                aggregate(列名=聚合函数('列'))
+            ex:
+                Author.objects.aggregate(sumAge=Avg('age'))
+
+            聚合函数
+                1. Avg(): 平均值
+                2. Count(): 数量
+                3. Sum(): 求和
+                4. Min(): 求最小值
+                5. Max(): 求最大值
+        9. 聚合查询（带分组）
+            方法
+                annotate(名字=聚合函数('列'))
+                ex:
+                    按id分组查询平均年龄
+                Author.objects.values('id').annotate(avg_age=Avg('age'))
+
+            集结 where，分组查询，having 于一体的查询接口
+                Author.objects
+                .filter(id__gte=3)  # where子句
+                .values('age')  # group by
+                .annotate(avgAge=Avg('age'))  # 查询聚合函数
+                .filter(avgAge__gte>20)  # having子句
+                .order_by('')  # 子句
+
+    3. 修改数据
+        1. 修改单个实体
+            查， 改， 保存
+        2. 批量修改数据
+            调用QuerySet的update(属性=值, 属性=值)实现批量修改
+    4. 删除数据
+        调用实体对象或查询结果集的delete()方法来完成删除
+        * 删除单个对象
+         au = Author.objects.get(id=1)
+         au.delete()
+
+        * 批量删除
+            Author.objects.all().delete()
+
+
+练习：
+    通过django的orm，查询出Author实体中，年龄大于平均年龄的人的信息
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

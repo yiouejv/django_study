@@ -18,8 +18,11 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    # 当访问路径的url前缀为music/时, 提交到django_study_1下的urls去匹配
+    # 当访问路径的url前缀为django_study_1/时, 提交到django_study_1下的urls去匹配
     url(r'^django_study_1/', include('django_study_1.urls')),
+    url(r"^django_study_2/", include('django_study_2.urls')),
+    url(r'^django_study_3/', include('django_study_3.urls')),
+    url(r'^django_study_4/', include('django_study_4.urls')),
 ]
 
 

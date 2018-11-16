@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../../static/js/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $(".delBtn").click(function () {
+                var self = $(this);
+                var id = self.val();
+                $.get(
+                    {#'http://127.0.0.1:8000/django_study_3/delete/' + id,#}
+                    '/django_study_3/delete/' + id,
+                    {
+
+                    },
+                    function (data, status) {
+                        if (data=='ok'){
+                            {#window.location.href = 'http://127.0.0.1:8000/django_study_3/queryall/';#}
+                            window.location.href = '/django_study_3/queryall/';
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+</head>
+<body>
+    <table border="1px">
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>年龄</th>
+                <th>邮箱</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for author in authors %}
+                <tr>
+                    <td>{{ author.name }}</td>
+                    <td>{{ author.age }}</td>
+                    <td>{{ author.email }}</td>
+                    <td><a href="">操作</a><button class="delBtn" value="{{ author.id }}">删除</button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

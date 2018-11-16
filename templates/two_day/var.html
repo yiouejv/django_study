@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% comment "注释name" %}
+        <h3>喜欢的一句话: {{ message }}</h3>
+    {% endcomment %}
+
+
+    <h3>姓名：{{ name }}</h3>
+    <h3>年龄：{{ age }}</h3>
+    <h3>性别：{{ gender }}</h3>
+    <h3>tuple[0]: {{ tuple.0 }}</h3>
+    <h3>tuple[1]: {{ tuple.1 }}</h3>
+    <h3>tuple[2]: {{ tuple.2 }}</h3>
+    <h3>list[0]: {{ list.0 }}</h3>
+    <h3>{{ dic.bj }}</h3>
+    <h3>{{ show_message }}</h3>
+    <h3>{{ dog.name }}</h3>
+    <h3>{{ dog.age }}</h3>
+    <h3>{{ dog.eat }}</h3>
+
+    {% for l in list %}
+        {% if forloop.first %}
+            <h2 style="background: red;">
+        {% elif forloop.last %}
+            <h2 style="background-color: yellow;">
+        {% else %}
+            <h2 style="background-color: pink;">
+        {% endif %}
+            <p>姓名{{ l }}</p>
+            <p>counter: {{ forloop.counter }}</p>
+            <p>counter0: {{ forloop.counter0 }}</p>
+            <p>revcounter: {{ forloop.revcounter }}</p>
+            <p>revcounter0: {{ forloop.revcounter0 }}</p>
+        </h2>
+    {% endfor %}
+
+
+    {% for l in lst %}
+        {% if forloop.counter|divisibleby:"2" %}
+            <p style="background-color: red">{{ l }}</p>
+        {% else %}
+            <p>{{ l }}</p>
+        {% endif %}
+
+
+    {% endfor %}
+
+
+
+
+</body>
+</html>
