@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_study_1',
     'django_study_2',
     'django_study_3',
+    'django_study_4',
 ]
 
 MIDDLEWARE = [

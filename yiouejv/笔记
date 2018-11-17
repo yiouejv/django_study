@@ -535,6 +535,196 @@ Django框架的使用
 
 
 
+#################################  django_study_4
+1. 模型
+    1. F查询  Q查询
+        F()
+            作用
+                在执行过程中获取某列的值
+            语法
+                from django.db.models import F
+                F('列名'): 得到某列的值
+            Author.objects.all().update(age=F('age')+10)
+        Q()
+            作用
+                在查询条件中可以完成or操作
+                from django.db.models import Q
+            语法
+                Q(条件1)|Q(条件2)
+
+            查询id>=3 或 年龄小于60的信息
+
+    2. 原生的数据库操作方法
+        * 查询
+            函数: raw(sql语句)
+            语法：Entry.objects.raw(sql)
+            返回值
+                QuerySet()
+
+        * 增删改
+            from django.db import connection
+            def do_sql(request):
+                with connection.curso() as cursor:
+                    sql = '...';
+                    cursor.execute(sql)  # 影响的行数
+                return xx
+
+
+2. 使用后台管理 Models
+    1. 后台配置
+        登陆地址： /admin/
+        创建后台管理员（超级用户）:
+            ./manage.py createsuperuser
+
+    2. Models 的基本管理
+        1. 在应用中的admin.py中注册要管理的实体类
+            admin.py作用：
+                注册要管理的Models类，只有注册之后才能管理
+            注册Models
+                admin.site.register()
+        2.  *重写每个实体类中的__str__()方法，
+              后台显示的将以__str__()的返回值为准
+            * 为实体类中的属性们添加字段选项 verbose_name
+                用于修改显示的字段名
+        3. 通过Model类的内部类Meta定义其展现形式
+            class Author(models.Model):
+                name = models.CharField(max_length=20)
+
+                class Meta():
+                    1. db_table = ''  # 指定该实体类映射到表的名称，该属性设置完成后需要同步回数据库
+                    2. verbose_name = ''
+                        定义类在admin中显示的名字(单数)
+                    3. varbose_name_plural
+                        定义类在admin中显示的名字(复数)
+                    4. ordering
+                        指定数据在后台管理中的排序方式
+                        取值一个列表，指定排序列，默认升序，降序使用-
+
+    3. Models 的高级管理
+        1. 在admin.py中创建高级管理类并注册
+            * 创建 EntryAdmin类，继承自admin.ModelAdmin
+                class AuthorAdmin(admin.ModelAdmin):
+                    pass
+            * 注册高级管理类
+                admin.site.register(Entry, EntryAdmin)
+                ex:
+                    admin.site.register(Author, AuthorAdmin)
+        2. 允许在EntryAdmin中增加的属性
+            * list_display
+                作用
+                    定义在列表也上显示的字段们
+                取值：
+                    由模型类中对象的属性名组成的元组或列表
+            * list_display_links
+                作用
+                    定义在列表页上也能够链接到详情页的字段们
+            * list_editable
+                作用
+                    定义在列表页上就能够修改的字段们
+                取值
+                    只能出现在list_display中，不能出现在list_display_links中
+            * search_fields
+                作用
+                    在列表页的偏上添加一个搜索栏，、
+                    定义搜索栏中允许搜索的字段值们
+            * list_filter
+                作用
+                    在列表页的右侧增加过滤器来实现快速筛选
+            * date_hierarchy
+                作用
+                    在列表页的顶部会增加一个时间选择器，取值属性必须是DateField 或 DateTimeField的列
+            * fields
+                作用
+                    在详情页面中，指定要显示那些字段并按照什么顺序显示
+            * fieldsets
+                作用
+                    在详情页中对字段们进行分组显示
+                注意
+                    fieldssets 与 fields 不能共存
+                取值
+                    fieldssets = [
+                        # 分组1
+                        ('分组名称', {
+                            'fields': ('属性1', '属性2'),
+                            'classes': ('collapse',)  # collapse 折叠
+                        }),
+
+                        # 分组2
+                    ]
+
+
+
+练习
+    完成Publisher 的高级管理功能
+    1. 在列表页上显示 name，address， city 属性
+    2. address 和 city 是可以编辑的
+    3. 右侧增加过滤器，允许按照city进行筛选
+    4. 顶部增加一个搜索框允许按照name， website进行筛选
+    5. 详情页中分组显示
+        1. name, address, city 为'基本选项'分组
+        2. country， website为'高级选项'分组且可折叠
+
+
+
+
+3. 关系的映射
+    1. 一对一映射
+        1. 语法
+            在关联的两个类中的任何一个类都可以增加对另一个类的引用
+
+            属性 = modles.OneToOneField(Entry)
+            ex：
+                class Author(models.Model):
+                    ...  ...
+
+                class Wife(models.Model):
+
+                    ... ...
+                    # 增加一对一的引用
+                    author = modles.OneToOneField(Author)
+            在数据库中
+                * 会生成一个外键(author_id)列在wife表中, 会引用在author表的主键
+                * 在Author中， 会增加一个隐式属性，来表示author所对应的wife（其实反向引用属性）
+
+        2. 查询
+            * 正向查询：通过wife 找 author
+                特点： 通过自定义的关联属性去查找对应的实体
+                    wife = Wife.objects.get(id=1)
+                    author = wife.author
+            * 反向查询：通过author 找 wife
+                特点： 通过反向引用属性去查找对应的实体
+                    author = Author.objects.get(id=1)
+                    wife = author.wife
+            练习:
+                通过姓名为'魏夫人' wife信息查找对应的author，打印在终端上
+                通过姓名为'王老师' wife信息查找对应的wife，打印在终端上
+
+
+    2. 一对多映射
+        语法
+            在'多'表中增加对'一'表的外键引用
+            在'多'实体中增加对'一'实体的引用
+            在'多'的实体中增加
+                属性 = models.ForeignKey(Entry)
+            ex:
+                Book   Publisher
+                多       一
+                class Book(models.Model):
+                    ... ...
+                    publisher = models.ForeignKey(Publisher)
+            数据库中体现
+                Book 表中增加一个外键列 publisher_id, 引用自Publisher 表中的主键
+            在实体中
+                * Book中会有一个publisher 属性来表示对应的Publisher 的对象
+                * Publisher 中会由一个隐式属性 book_set, 用来表示该publisher对应的所有的Book对象的查询
+
+
+    3. 多对多映射
+
+
+
+
+
 
 
 
