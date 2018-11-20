@@ -63,7 +63,7 @@ class PublisherAdmin(admin.ModelAdmin):
             'classes': [],
         }],
         ['高级选项', {
-            'fields': ['country', 'website'],
+            'fields': ['country', 'website', 'authors'],
             'classes': ['collapse']
         }]
     ]

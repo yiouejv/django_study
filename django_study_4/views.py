@@ -1,4 +1,4 @@
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import *
@@ -72,5 +72,27 @@ def otm(request):
     print(publisher)
 
     books = Publisher.objects.get(id=3).book_set.all()
+    print(books)
+    return HttpResponse('ok')
+
+
+def mtm(request):
+    publisher = Publisher.objects.get(id=3)
+    print(publisher)
+    authors = publisher.authors.all()
+    print(authors)
+
+    author = Author.objects.get(id=8)
+    print(author)
+    publishers = author.publisher_set.all()
+    print(publishers)
+
+    n = Author.objects.author_count()
+    print(n)
+
+    authors = Author.objects.age_filter(19).values()
+    print(authors)
+
+    books = Book.objects.filter_book('flask')
     print(books)
     return HttpResponse('ok')

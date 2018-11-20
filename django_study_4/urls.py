@@ -10,4 +10,5 @@ urlpatterns = [
     url('^query/$', query),
     url('^oto/$', oto),
     url('^otm/$', otm),
+    url('^mtm/$', mtm),
 ]

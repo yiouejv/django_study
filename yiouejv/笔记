@@ -720,6 +720,174 @@ Django框架的使用
 
 
     3. 多对多映射
+        语法
+            在关联的两个类的任意一个类中，增加
+                属性 = models.ManyToManyField(Entry)
+                ex
+                    Author   Book 可以的是多对多关联关系
+                    1为author 可以出版多本book
+                    1本book 可以由多位author 联合编写
+
+                class Author(models.Model):
+                    ... ...
+
+                class Book(models.Model):
+                    ... ...
+                    authors = models.ManyToManyField(Author)
+
+                正向引用：
+                    在Book中通过 authors 来表示对应的所有的书籍的查询
+                反向引用
+                    在Author 中通过 book_set 来表示对应的所有的作者们的查询
+
+        实现多对多在 django_study_4 models.py 中实现
+
+        练习
+            创建Author 与 Publisher 之间的关系
+            1个Publisher 可以由多名 签约Author
+            1名Author也可以有多个签约Publisher
+
+
+        查询：
+            通过 Book 查询 Author 以及 反向查
+
+            class Author(models.Model):
+                    ... ...
+
+                class Book(models.Model):
+                    ... ...
+                    authors = models.ManyToManyField(Author)
+            正向查询：通过 Book 查询 authors
+                authors = book.authors.all()
+            反向查询
+                books = author.book_set.all()
+
+
+自定义查询对象 - objects
+    objects 的 属性的类型为 models.Manager
+    1. 声明 EntryManager 类，继承自models.Manager
+        允许在 EntryManager 中增加自定义函数
+
+        class EntryManager(models.Manager):
+            def 函数名(self):
+                ... ...
+                return ...
+    2. 使用给EntryManager 覆盖Models类中覆盖原有的objects
+        class Entry(models.Model):
+            objects = EntryManager()
+
+    练习
+        * 在Author 中增加自定义方法
+            查询 Author 中年龄小于指定人的信息
+        * 在Book中增加自定义方法
+            查询书名中包含指定关键字的书籍数量
+
+
+
+HttpRequest - 请求
+    1. 什么是HttpRequest
+        HttpRequest 对请求对象的封装， 里面封装的是请求过程中的所有信息
+        在Django中HttpRequest 被封装成request对象并封装到视图处理函数中，在调用视图时自动导入
+    2. HttpRequest 中的主要内容
+        1. request.scheme: 请求协议
+        2. request.post: 请求主体
+        3. request.path: 请求路径
+        4. request.get_full_path: 请求完整路径
+        5. request.get_host(): 请求主机地址 / 域名
+        6. request.method: 请求方法
+        7. request.GET: 封裝了get請求s方式提交的數據
+        8. request.POST: 封裝了POST請求方式提交的數據
+        9. request.cookies: 封裝了 cookies中的所有數據
+        10. request.META: 封裝了請求的元數據
+            request.META.HTTP_REFERER: 封裝了請求的源地址
+    3. 获取请求提交的数据
+        1. get 请求
+            * 获取数据
+                request.GET['名称']
+                request.GET.get('名称')
+                request.GET.getlist('名称')
+            * 使用get方式提交数据的场合
+                表单中method 为 get 的时候
+                地址栏上拼查询字符串的时候
+                    注意：
+                        url('^/(\d{1,4})/(\d{1,4})$', xxx),
+                        http://localhost:8000/2018/10
+                        以上方式提交的数据不能使用request.GET来获取
+                        因为以上的方式是 Django的标准而并非是 HTTP的标准
+
+            练习
+                http://localhost:8000/request/?year=2018&month=11&day=19
+                实际请求地址：
+                    http://localhost:8000/django_study_5/request2/?year=2018&month=11&day=19
+
+        2. post 请求
+            * 获取数据
+                request.POST['名称']
+                request.POST.get('名称')
+                request.POST.getlist('名称')
+            * 使用post方式提交数据的场合
+                使用表单提交时可以使用post
+            * CSRF verification failed (403)
+                CSRF: Cross Site Request Forgery
+                    跨站域请求伪造
+                解决方案
+                    1. 取消csrf验证
+                        删除 setting.py 中 MIDDLEWARE 中的 CsrfViewMiddleware 中间件
+                    2. 在处理函数上增加一个装饰器
+                        @csrf_protect
+                    3. 在表单中的第一行增加{% csrf_token %}
+
+
+
+使用 forms 模块处理表单
+    1. form 模块的使用
+        通过forms模块，允许将表单与class结合（表单与实体类结合），允许通过class生成表单
+    2. 使用forms模块
+        * 在应用中创建form.py 模块
+        * 导入forms模块
+            from django import forms
+        * 创建class 表单类
+            class ClassName(forms.Form):
+                pass
+        * 创建属性
+            一个属性对应到表单中生成一个控件
+
+    3. 在模板中解析form对象
+        * 注意
+            在模板中，需要
+                自定义 <form></form>
+                自定义 提交按钮
+        * 处理方法
+            * 在views中创建form的对象并发送到模板上
+                form = RemarkForm()
+                return render(request, 'xxx.html', context)
+
+            * 在模板中进行解析
+                手动解析
+                    {% for field in form %}
+                        {{ field }}
+                            表示的就是form对象中的一个独立属性
+                            表示的也就是一个独立的控件
+                        {{ field.label }}
+                            表示的是控件中label参数的值
+                    {% endfor %}
+                自动解析
+                    * {% form.as_p %}
+                        将form对象中的每个属性使用p标记包裹起来再显示
+                    * {% form.as_ul %}
+                        将form对象中的每个属性使用li标记包裹起来再显示
+                        注意：
+                            必须手动提供 <ol> 或 <ul>
+                    * {% form.as_table %}
+                        将form对象中的每个属性用tr标记包裹起来，再显示
+                        注意:
+                            必须手动提供<table>
+
+
+
+
+
+
 
 
 

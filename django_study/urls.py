@@ -23,6 +23,7 @@ urlpatterns = [
     url(r"^django_study_2/", include('django_study_2.urls')),
     url(r'^django_study_3/', include('django_study_3.urls')),
     url(r'^django_study_4/', include('django_study_4.urls')),
+    url(r'^django_study_5/', include('django_study_5.urls')),
 ]
 
 
