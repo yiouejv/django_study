@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('button').click(function () {
+                $.get(
+                    'http://localhost:8000/django_study_5/remakes/',
+                    {},
+                    function (data) {
+                        $(data).each(function (i, obj) {
+                            console.log('id', obj.pk);
+                            console.log('subject', obj.fields.subject);
+                            console.log('message', obj.fields.message);
+                            console.log('topic', obj.fields.topic);
+                            console.log('email', obj.fields.email);
+                            console.log('###############################');
+                        });
+                    },
+                    'json'
+                );
+            });
+        });
+    </script>
+</head>
+<body>
+    <button>加载数据</button>
+</body>
+</html>

@@ -129,3 +129,5 @@ STATIC_URL = '/static/'
 
 # 指定静态文件的存储路径
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

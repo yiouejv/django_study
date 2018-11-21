@@ -1,5 +1,6 @@
+from django.core import serializers
 from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .forms import *
 from .models import *
 
@@ -54,16 +55,47 @@ def form(request):
         }
         return render(request, 'five_day/form.html', context)
     else:
-        form = request.POST
-        subject = form.get('subject')
-        email = form.get('email')
-        message = form.get('message')
-        topic = form.get('topic')
-        is_save = bool(form.get('is_save'))
-        print(is_save)
-        print(type(is_save))
-        remark = Remark(subject=subject, email=email, message=message,
-                        topic=topic, is_save=is_save)
-        remark.save()
-        print(remark.__dict__)
+        # form = request.POST
+        form = RemarkForm(request.POST)
+        if form.is_valid():
+            subject = form.get('subject')
+            email = form.get('email')
+            message = form.get('message')
+            topic = form.get('topic')
+            is_save = bool(form.get('is_save'))
+            print(is_save)
+            print(type(is_save))
+            remark = Remark(subject=subject, email=email, message=message,
+                            topic=topic, is_save=is_save)
+            remark.save()
+            print(remark.__dict__)
         return HttpResponse('xxx')
+
+
+def register(request):
+    if request.method == 'GET':
+        return render(request, 'five_day/register.html')
+    else:
+        form = UserForm(request.POST)
+        if form.is_valid():
+            forms = request.POST
+            name = forms.get('name')
+            age = forms.get('age')
+            email = forms.get('email')
+            user = User(name=name, age=age, email=email)
+            user.save()
+            HttpResponse().delete_cookie()
+            return HttpResponse('ok')
+        else:
+            return HttpResponse('fail')
+
+
+def remake(request):
+    remakes = Remark.objects.all()
+    print(remakes)
+    json_remakes = serializers.serialize('json', remakes)
+    return HttpResponse(json_remakes)
+
+
+def ajax(request):
+    return render(request, 'remakes.html')

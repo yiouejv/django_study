@@ -884,9 +884,134 @@ HttpRequest - 请求
                             必须手动提供<table>
 
 
+================================
+使用forms 模块
+    通过forms.Form 获取表单数据 POST
+     1. 通过froms.Form的构造函数来接受post数据
+        form = EntryForm(request.POST)
+     2. 必须要使form对象通过验证后再获取数据
+        form.is_valid()
+     3. 获取表单中的数据
+        form.cleaned_data 来获取提交的数据
+
+forms模块的高级处理
+    将Models 和 Forms 结合到一起使用
+    * 在 forms.py 中创建 class, 继承自 forms.ModelForm
+    * 创建内部类Meta，去关联Model
+        model: 指定要关联的实体类
+        fields: 指定从Model中取哪些字段要生成控件
+            取值为 __all__ 表示全部属性都要生成控件
+            取值为 列表，生命允许生成控件的属性名
+        labels: 指定每个属性关联的label，取值为字典
+            labels = {
+                '属性名': 'label文本',
+                '属性名': 'label文本',
+            }
+    * 内置的小部件 - widget
+        小部件，表示生成到网页上的控件类型，以及其他的html属性
+        常用小部件类型
+            TextInput: type='text'
+            PasswordInput: type='password'
+            NumberInput: type='number'
+            EmailInput: type='email'
+            URLInput: type='url'
+            HiddenInput: type='hidden'
+            ChechboxInput: type='checkbox'
+            Textarea: <textarea></textarea>
+            Select: <select></select>
+        小部件的使用
+            继承自 forms.Form 的使用方法
+                基本版
+                    只指定控件的类型
+                    class RemarkForm(forms.Form):
+                        属性 = forms.CharField(
+                            label = '文本',
+                            widget = forms.小部件类型
+                        )
+                高级版
+                    指定控件类型上设置相关的HTML属性到控件上
+                    属性 = forms.CharField(
+                        label = '文本',
+                        widget = forms.小部件的类型(
+                            attrs = {
+                                'html attr':  '';
+                            }
+                        )
+                    )
+            继承自 forms.ModelForm 的使用方法
+                class XXXForm(forms.ModelForm):
+                    class Meta:
+                        model = xxx
+                        fields = '__all__'  或 []
+                        labels = {
+                            '属性1': '标签1',
+                        }
+                        # 指定小部件
+                        widgets = {
+                            '属性1': forms.小部件类型{
+                                attrs = {
+                                    '属性': '值',
+                                }
+                            }
+                        }
 
 
 
+cookies 和 session
+    django 中使用 cookies
+        * 设置cookies 的值（将数据保存到客户端）
+            语法
+                响应对象.set_cookie(key, value, expires)
+                                    键    值     时长
+                不使用模板
+                    resp = HttpResponse('xxx')
+                    resp.set_cookie(key, value, expires)
+                    return resp
+                使用模板
+                    resp = render(request, 'xxx.html', context)
+                    resp.set_cookie(key, value, expires)
+                    return resp
+                使用重定向
+                    resp = redirect(request, 'xxx.html')
+                    resp.set_cookie(key, value, expires)
+                    return resp
+        * 获取cookies 的值
+            伴随请求对象到达服务器后再获取cookie的值
+                request.COOKIES: 封装了当前访问站点下所有cookie的信息
+        * 删除cookie 的值
+            通过客户端删除数据
+                resp.delete_cookie(key)
+
+    django 使用session
+        1. 设置 session 的值
+            request.session['key'] = value
+        2. 获取 session 的值
+            request.session['key']
+            request.session.get('key')
+        3. 删除 session 的值
+            del request.session['key']
+        4. 有关 session 的配置
+            在 settings.py 中有关session的设置
+                * SESSION_COOKIE_AGE
+                    作用：设置sessionID在cookies中的存活时间
+                    ex:
+                        SESSION_COOKIE_AGE = 60*30
+                * SESSION_EXPIRE_AT_BROWSER_CLOSE
+                    作用：设置浏览器关闭时则清除服务器上对应的session空间
+                    ex:
+                        SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+
+
+Django 中的 AJAX处理
+    1. Django 处理json
+        Django 查询结果集的处理
+            使用Django提供的序列化的类完成QuerySet到JSON字符串的转换
+            form django.core import serializers
+            jsontsr = serializers.serialize('json', QuerySet)
+    2. 提交post请求
+        1. 在网页中任意一个位置增加 {% csrf_token %}
+        2. 在ajax post请求中提交参数时，需要将csrf的键和值也提交给服务器
 
 
 

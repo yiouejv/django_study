@@ -34,4 +34,10 @@ class RemarkForm(forms.Form):  # remark 评论
 
 
 
+class UserForm(forms.Form):
+    name = forms.CharField()
+    age = forms.CharField()
+    email = forms.EmailField()
+
+
 

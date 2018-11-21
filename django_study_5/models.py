@@ -15,3 +15,9 @@ class Remark(models.Model):
     message = models.TextField()
     topic = models.IntegerField()
     is_save = models.BooleanField(default=True)
+
+
+class User(models.Model):
+    name = models.CharField(max_length=20)
+    age = models.CharField(max_length=3)
+    email = models.EmailField()

@@ -8,4 +8,7 @@ urlpatterns = [
     url('^request2/$', request2),
     url('^post/$', post),
     url('^form/$', form),
+    url('^register/$', register),
+    url('^remakes/$', remake),
+    url('^ajax/$', ajax),
 ]
